@@ -60,6 +60,9 @@ class SambaAD:
 
 # v Users ---------------------------------------------------------------------
 
+    def listUsers(self):
+        return self._samba_tool("user list")
+
     def isUserEnabled(self, username):
         if type(username) != type(''):
             raise TypeError("username is expected to be string")

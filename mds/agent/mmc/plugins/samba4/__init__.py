@@ -281,6 +281,9 @@ def editMachine(name, description, enabled):
 
 # v Users ---------------------------------------------------------------------
 
+def listSambaUsers():
+    return SambaAD().listUsers()
+
 def userHasSambaAccount(username):
     return username and SambaAD().existsUser(username)
 

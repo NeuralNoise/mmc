@@ -25,6 +25,10 @@
  */
 ?>
 <?php
+function listSambaUsers() {
+	return xmlCall("samba4.listSambaUsers", null);
+}
+
 /*
  * Returns whether or not the user is present at the Samba LDAP
  * This is used as a check to avoid further operations
