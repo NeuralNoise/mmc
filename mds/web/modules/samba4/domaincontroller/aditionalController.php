@@ -21,14 +21,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * Author(s):
- *   Julien Kerihuel <jkerihuel@zentyal.com>
  *   Miguel Julián <mjulian@zentyal.com>
  */
 
 require_once("modules/samba4/includes/common-xmlrpc.inc.php");
 require("modules/samba4/includes/domaincontroller-xmlrpc.inc.php");
-require("modules/samba4/mainSidebar.php");
-require("graph/navbar.inc.php");
 
 /* Provision has been ordered, just handle it or show the form */
 if (isset($_POST["bprovision"]) and ! isSamba4Provisioned()) {
@@ -41,32 +38,41 @@ if (isset($_POST["bprovision"]) and ! isSamba4Provisioned()) {
 }
 
 /* If the user is entering the submodule or if the provision has failed, we show the form */
-_showProvisionForm($sidemenu);
+_showProvisionForm();
 
-function _showProvisionForm($sidemenu) {
+function _showProvisionForm() {
     _redirectIfAlreadyProvisioned();
 
-    $page = new PageGenerator(_T("Samba provisioning"));
-    $page->setSideMenu($sidemenu);
+    $page = new PageGenerator();
     $page->display();
 
     $form = new ValidatingForm(array('method' => 'POST','enctype' => 'multipart/form-data'));
     $form->push(new Table());
 
-    $tr = new TrFormElement(_T("NetBIOS domain name", "samba4"), new InputTpl("domainName"));
-    $form->add($tr, array("value" => "", "required" => True));
-
     $tr = new TrFormElement(_T("Realm", "samba4"), new InputTpl("realm"));
     $form->add($tr, array("value" => "", "required" => True));
 
-    $tr = new TrFormElement(_("Description"), new InputTpl("description"));
+    $tr = new TrFormElement(_T("Domain controller FQDN", "samba4"), new InputTpl("dcFQDN"));
     $form->add($tr, array("value" => "", "required" => True));
-    /* Romaing Profiles: disabled for now
-    $mobile = False;
-    $tr = new TrFormElement(_T("Foo de los móviles", "samba4"), new CheckboxTpl("mobile"),
-                                array("tooltip" => _T("If checked, this makes tones of magic", "samba4")));
-    $form->add($tr, array("value" => $mobile ? "checked" : ""));
-    */
+
+    $tr = new TrFormElement(_T("Domain DNS server IP", "samba4"), new InputTpl("dnsServerIP"));
+    $form->add($tr, array("value" => "", "required" => True));
+
+    $tr = new TrFormElement(_T("Administrator account", "samba4"), new InputTpl("adminAccount"));
+    $form->add($tr, array("value" => "", "required" => True));
+
+    $tr = new TrFormElement(_T("Administrator password", "samba4"), new InputTpl("adminPassword"));
+    $form->add($tr, array("value" => "", "required" => True));
+
+    $tr = new TrFormElement(_T("NetBIOS domain name", "samba4"), new InputTpl("domainName"));
+    $form->add($tr, array("value" => "", "required" => True));
+
+    $tr = new TrFormElement(_T("NetBIOS server name", "samba4"), new InputTpl("serverName"));
+    $form->add($tr, array("value" => "", "required" => True));
+
+    $tr = new TrFormElement(_T("Server description"), new InputTpl("description"));
+    $form->add($tr, array("value" => "", "required" => True));
+
     $form->pop();
 
     $form->addButton("bprovision", _("Do provision"));
@@ -76,21 +82,17 @@ function _showProvisionForm($sidemenu) {
 }
 
 /* Private functions */
-
 function _doProvision($_POST) {
-    if (isset($_POST["domainName"])) {
-        $domainName = $_POST["domainName"];
+    $inputIds = array("realm", "dcFQDN", "dnsServerIP", "adminAccount", "adminPassword", "domainName", "serverName", "description");
+
+    $parameters = array();
+    foreach ($inputIds as $id) {
+        if (isset($_POST[$id])) {
+            $parameters[] = $_POST[$id];
+        }
     }
 
-    if (isset($_POST["realm"])) {
-        $realm = $_POST["realm"];
-    }
-
-    if (!$domainName or !$realm) {
-        return False;
-    }
-
-    return provisionSamba4($domainName, $realm);
+    return provisionSamba4AditionalDC($parameters);
 }
 
 function _redirectIfAlreadyProvisioned() {

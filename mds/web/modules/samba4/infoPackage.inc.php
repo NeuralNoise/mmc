@@ -63,11 +63,11 @@ function _createSamba4ProvisionSubmodule($isProvisioned) {
 
     $submodule->setDescription(_T("Domain", "samba4"));
     $submodule->setImg('modules/samba4/graph/navbar/share');
-    $submodule->setDefaultPage("samba4/domaincontroller/provision");
+    $submodule->setDefaultPage("samba4/domaincontroller/index");
     $submodule->setVisibility(!$isProvisioned);
     $submodule->setPriority(20);
 
-    $provisionPage = new Page("provision",_T("Povisioning", "samba4"));
+    $provisionPage = new Page("index",_T("Povisioning", "samba4"));
     $provisionPage->setImg(
         "modules/samba4/graph/img/provision/icn_provision_active.gif",
         "modules/samba4/graph/img/provision/icn_provision.gif"
